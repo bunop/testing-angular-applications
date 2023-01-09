@@ -1,4 +1,3 @@
-import { Contact } from './../shared/models/contact.model';
 
 // to inspect element during testing
 import { DebugElement } from '@angular/core';
@@ -70,8 +69,7 @@ describe('ContactEditComponent tests', () => {
       return this.contact;
     },
 
-    // Method that updates
-    // the contact object
+    // Method that updates the contact object
     updateContact: async function (contact: Contact) {
       component.contact = contact;
     }
@@ -156,6 +154,113 @@ describe('ContactEditComponent tests', () => {
       // Checks to see if the name property has been set correctly
       expect(nameInput.nativeElement.value).toBe('lorace');
     }));
-  })
+  });
+
+  describe('loadContact() test', () => {
+    it('should load contact', fakeAsync(() => {
+      component.isLoading = false;
+      component.loadContact();
+      fixture.detectChanges();
+      const nameInput = rootElement.query(By.css('.contact-name'));
+      tick();
+      // janet is the example contact saved in contactServiceStub
+      expect(nameInput.nativeElement.value).toBe('janet');
+    }));
+  });
+
+  describe('updateContact() test', () => {
+    it('should update the contact', fakeAsync(() => {
+      const newContact = {
+        id: 1,
+        name: 'delia',
+        email: 'delia@example.com',
+        number: '1234567890'
+      };
+
+      component.contact = {
+        id: 2,
+        name: 'rhonda',
+        email: 'rhonda@example.com',
+        number: '1234567890'
+      };
+
+      component.isLoading = false;
+      fixture.detectChanges();
+      const nameInput = rootElement.query(By.css('.contact-name'));
+      tick();
+      // test initial state
+      expect(nameInput.nativeElement.value).toBe('rhonda');
+
+      component.updateContact(newContact);
+      fixture.detectChanges();
+      // simulate passage of time (100 ms)
+      tick(100);
+      // test name after update
+      expect(nameInput.nativeElement.value).toBe('delia');
+    }));
+
+    it('should not update the contact if email is invalid', fakeAsync(() => {
+      const newContact = {
+        id: 1,
+        name: 'london',
+        // set an invalid email
+        email: 'london@example',
+        number: '1234567890'
+      };
+
+      component.contact = {
+        id: 2,
+        name: 'chauncey',
+        email: 'chauncey@example.com',
+        number: '1234567890'
+      };
+
+      component.isLoading = false;
+      fixture.detectChanges();
+      const nameInput = rootElement.query(By.css('.contact-name'));
+      tick();
+      // test initial state
+      expect(nameInput.nativeElement.value).toBe('chauncey');
+
+      component.updateContact(newContact);
+      fixture.detectChanges();
+      // simulate passage of time (100 ms)
+      tick(100);
+      // test name after update: no changes occurred
+      expect(nameInput.nativeElement.value).toBe('chauncey');
+    }));
+
+    it('should not update the contact if phone number is invalid', fakeAsync(() => {
+      const newContact = {
+        id: 1,
+        name: 'london',
+        email: 'london@example.com',
+        // set an invalid phone number
+        number: '12345678901'
+      };
+
+      component.contact = {
+        id: 2,
+        name: 'chauncey',
+        email: 'chauncey@example.com',
+        number: '1234567890'
+      };
+
+      component.isLoading = false;
+      fixture.detectChanges();
+      const nameInput = rootElement.query(By.css('.contact-name'));
+      tick();
+      // test initial state
+      expect(nameInput.nativeElement.value).toBe('chauncey');
+
+      component.updateContact(newContact);
+      fixture.detectChanges();
+      // simulate passage of time (100 ms)
+      tick(100);
+      // test name after update: no changes occurred
+      expect(nameInput.nativeElement.value).toBe('chauncey');
+    }));
+
+  });
 
 });
